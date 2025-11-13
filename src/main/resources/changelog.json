@@ -1,23 +1,18 @@
 {
-  "version": "LoginSecurity v3.2.1",
+  "version": "LoginSecurity v3.3.1",
   "data":
   [
     [
       "---[ Changelog ]---",
       "",
-      "- Fixed log leaking when using command shortcuts",
+      "- Fixed captcha map rendering with filled map",
       "",
-      "- Fixed session continuation when BungeeCord is enabled",
-      "",
-      "- Fixed intermittent error with session timeout",
+      "- NOTE: This is the last version supporting MC 1.8-1.17"
     ],
     [
       "",
       "Please check spigot-mc.org for the full changelog.",
-      "",
-      "--[ Special thanks ]--",
-      "",
-      "Special thanks to @voidpointer0x00 and @Deauthorized for recent contributions."
+      ""
     ],
     [
       "=====[ SOCIAL ]=====",
