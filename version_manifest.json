@@ -1,9 +1,9 @@
 [
   {
-    "version": "3.3.0",
+    "version": "3.3.1",
     "channel": "STABLE",
-    "downloadUrl": "https://ci.codemc.io/job/lenis0012/job/LoginSecurity/140/artifact/target/LoginSecurity-Spigot-3.3.0.jar",
-    "changelogUrl": "https://www.spigotmc.org/resources/loginsecurity.19362/update?update=527470",
+    "downloadUrl": "https://ci.codemc.io/job/lenis0012/job/LoginSecurity/143/artifact/target/LoginSecurity-Spigot-3.3.1.jar",
+    "changelogUrl": "https://www.spigotmc.org/resources/loginsecurity.19362/update?update=617498",
     "minMcVersion": "1.8"
   }
 ]
