@@ -42,7 +42,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.spigotmc.event.player.PlayerSpawnLocationEvent;
+import io.papermc.paper.event.player.AsyncPlayerSpawnLocationEvent;
+import com.lenis0012.bukkit.loginsecurity.util.ProfileUtil;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -152,38 +153,48 @@ public class PlayerListener implements Listener {
         if(config.isBlindness()) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, Integer.MAX_VALUE, 1));
         }
+
+        if(general.getLocationMode() == LocationMode.SPAWN && profile.getLoginLocationId() == null) {
+            final PlayerLocation rememberedLocation = new PlayerLocation(player.getLocation());
+            LoginSecurity.getDatastore().getLocationRepository().insertLoginLocation(profile, rememberedLocation, result -> {
+                if(!result.isSuccess()) {
+                    LoginSecurity.getInstance().getLogger().log(Level.SEVERE, "Failed to save player location", result.getError());
+                    return;
+                }
+                PaperLib.teleportAsync(player, Bukkit.getWorlds().get(0).getSpawnLocation());
+            });
+        }
     }
 
     @EventHandler
-    public void maskPlayerLocation(PlayerSpawnLocationEvent event) {
-        final Player player = event.getPlayer();
-        final PlayerSession session = LoginSecurity.getSessionManager().getPlayerSession(player);
+    public void onAsyncSpawn(AsyncPlayerSpawnLocationEvent event) {
         if(general.getLocationMode() != LocationMode.SPAWN) {
             return;
         }
-        if(!session.isRegistered()) {
-            return; // Can't store location for non-registered players. and it shouldn't happen anyway
+
+        final var connection = event.getConnection();
+        final var profile = connection.getProfile();
+        final PlayerSession session = LoginSecurity.getSessionManager()
+                .preloadSession(profile.getName(), profile.getId());
+        if(session == null) {
+            return;
         }
-        // Don't update location if already done in previous login
+        if(!session.isRegistered()) {
+            return;
+        }
         if(session.getProfile().getLoginLocationId() != null) {
             return;
         }
 
-        PlayerLocation rememberedLocation = new PlayerLocation(event.getSpawnLocation());
+        final PlayerLocation rememberedLocation = new PlayerLocation(event.getSpawnLocation());
         event.setSpawnLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
         LoginSecurity.getDatastore().getLocationRepository().insertLoginLocation(session.getProfile(), rememberedLocation, result -> {
             if(!result.isSuccess()) {
                 LoginSecurity.getInstance().getLogger().log(Level.SEVERE, "Failed to save player location", result.getError());
-                player.teleport(rememberedLocation.asLocation());
-            } else if(session.isAuthorized() && player.isOnline()) {
-                LoginSecurity.getInstance().getLogger().log(Level.WARNING, "Player was logged in prematurely while still saving location");
-                PaperLib.teleportAsync(player, rememberedLocation.asLocation());
-                session.getProfile().setLoginLocationId(null);
-                session.saveProfileAsync();
-                LoginSecurity.getDatastore().getLocationRepository().delete(rememberedLocation);
             }
         });
     }
+
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onAuthChange(AuthModeChangedEvent event) {

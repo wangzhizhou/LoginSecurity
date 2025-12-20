@@ -48,3 +48,55 @@ mvn clean install
 ```
 
 Update changes in the translations repo using `git submodule update --remote src/main/resources/lang`
+
+# Building
+
+This project supports Gradle (Kotlin DSL) and Maven.
+
+- Gradle: `./gradlew build` (uses Gradle Wrapper)
+- Maven: `mvn package`
+
+Gradle build shades dependencies and relocates:
+- `com.lenis0012.pluginutils` → `com.lenis0012.bukkit.loginsecurity.libs.pluginutils`
+- `com.lenis0012.updater` → `com.lenis0012.bukkit.loginsecurity.libs.updater`
+- `org.bstats` → `com.lenis0012.bukkit.loginsecurity.libs.bstats`
+- `io.papermc.lib` → `com.lenis0012.bukkit.loginsecurity.libs.paper`
+
+- Resource filtering: `plugin.yml` placeholders `${project.name}`, `${project.version}`, `${updater.manifestUrl}` are injected at build time.
+
+# Publishing
+
+Hangar publish via Gradle:
+
+- Set environment `HANGAR_API_KEY` to your Hangar API key
+- For snapshots use version with `-SNAPSHOT`, channel `Snapshot` will be used
+- For releases use version without `-SNAPSHOT`, channel `Release` will be used
+- Commands:
+- `./gradlew publishAllPublicationsToHangar`
+- `./gradlew publishLoginsecurityPublicationToHangar`
+- Optional changelog: `-PhangarChangelog="Removed Herobrine"`
+
+Resource filtering substitutes `plugin.yml` placeholders with Gradle properties.
+
+# Local Dev & Debugging
+
+Run a Paper server with your plugin automatically (via run-task):
+
+- Start server: `./gradlew runServer`
+- Override runtime MC: `./gradlew runServer -PpaperRunVersion=1.21.1`
+- Default JDWP debug on `*:5005` is configured in Gradle
+
+## Gradle Version & Java Requirements
+
+- Wrapper configured for Gradle `9.x`
+- Running with Java `21` toolchain; plugin targets Java `8` bytecode via `--release 8`
+- If wrapper jar is missing, generate with a local Gradle: `gradle wrapper --gradle-version 9.0`
+
+## Paper API Version
+
+- Default `paperApiVersion` is `1.21-R0.1-SNAPSHOT`
+- Override via: `./gradlew build -PpaperApiVersion=1.21.1-R0.1-SNAPSHOT`
+
+## Paper Compatibility Note
+
+- Paper deprecated `PlayerSpawnLocationEvent`. The plugin avoids listening to this event and masks location on join to ensure safe behavior on Paper.

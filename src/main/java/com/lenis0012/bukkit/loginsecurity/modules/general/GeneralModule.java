@@ -58,8 +58,13 @@ public class GeneralModule extends Module<LoginSecurity> {
     private void setupUpdater() {
         final LoginSecurityConfig config = LoginSecurity.getConfiguration();
         if(config.isUpdaterEnabled()) {
-            this.updater = UpdaterFactory.provideBest(plugin, plugin.getInternalClassLoader())
-                .getUpdater(plugin);
+            try {
+                this.updater = UpdaterFactory.provideBest(plugin, plugin.getInternalClassLoader())
+                    .getUpdater(plugin);
+            } catch (RuntimeException e) {
+                logger().log(Level.INFO, "Updater disabled: {0}", e.getMessage());
+                this.updater = null;
+            }
         } else {
             this.updater = null;
         }
