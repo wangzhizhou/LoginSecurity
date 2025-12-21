@@ -115,9 +115,11 @@ tasks.shadowJar {
 }
 
 tasks.jar {
+    enabled = false
 }
 
 tasks.assemble {
+    enabled = false
 }
 
 val isSnapshot = version.toString().endsWith("-SNAPSHOT")
