@@ -98,6 +98,9 @@ public class PlayerListener implements Listener {
 
         // Pre-load player to improve performance...
         final PlayerSession session = LoginSecurity.getSessionManager().preloadSession(event.getName(), event.getUniqueId());
+        if (event.getAddress() != null) {
+            session.setPreLoginIp(event.getAddress().getHostAddress());
+        }
 
         // Dis-allow joining if a differently-cased version of the same name is used.
         if(LoginSecurity.getConfiguration().isMatchUsernameExact() &&

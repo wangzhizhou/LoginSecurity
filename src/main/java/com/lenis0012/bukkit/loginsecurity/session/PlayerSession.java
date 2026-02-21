@@ -20,6 +20,7 @@ import java.util.logging.Level;
 public class PlayerSession {
     private PlayerProfile profile;
     private AuthMode mode;
+    private String preLoginIp;
 
     protected PlayerSession(PlayerProfile profile, AuthMode mode) {
         this.profile = profile;
@@ -43,7 +44,13 @@ public class PlayerSession {
             throw new IllegalStateException("Can't save profile when not registered!");
         }
         LoginSecurity.getDatastore().getProfileRepository().update(profile, result -> {
-            if(!result.isSuccess()) LoginSecurity.getInstance().getLogger().log(Level.SEVERE, "Failed to save user profile", result.getError());
+            if(!result.isSuccess()) {
+                LoginSecurity.getInstance().getLogger().log(Level.SEVERE, "Failed to save user profile", result.getError());
+            } else {
+                if (preLoginIp != null && preLoginIp.equals(profile.getIpAddress())) {
+                    preLoginIp = null;
+                }
+            }
         });
     }
 
@@ -129,6 +136,14 @@ public class PlayerSession {
      */
     public Player getPlayer() {
         return Bukkit.getPlayer(profile.getLastName());
+    }
+
+    public String getPreLoginIp() {
+        return preLoginIp;
+    }
+
+    public void setPreLoginIp(String preLoginIp) {
+        this.preLoginIp = preLoginIp;
     }
 
     /**

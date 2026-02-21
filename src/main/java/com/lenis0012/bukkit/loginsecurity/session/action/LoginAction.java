@@ -27,7 +27,11 @@ public class LoginAction extends AuthAction {
         rehabPlayer(session);
         if(session.isRegistered()) {
             session.getProfile().setLastLogin(new Timestamp(System.currentTimeMillis()));
-            session.getProfile().setIpAddress(session.getPlayer().getAddress().getAddress().toString());
+            if (session.getPlayer() != null && session.getPlayer().isOnline() && session.getPlayer().getAddress() != null) {
+                session.getProfile().setIpAddress(session.getPlayer().getAddress().getAddress().toString());
+            } else if (session.getPreLoginIp() != null) {
+                session.getProfile().setIpAddress(session.getPreLoginIp());
+            }
             session.saveProfileAsync();
         }
         return AuthMode.AUTHENTICATED;

@@ -47,19 +47,28 @@ public abstract class AuthAction {
      */
     protected void rehabPlayer(final PlayerSession session) {
         final Player player = session.getPlayer();
+        if (player == null || !player.isOnline()) {
+            return;
+        }
         final PlayerProfile profile = session.getProfile();
 
-        Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), () -> player.removePotionEffect(PotionEffectType.BLINDNESS));
+        Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), () -> {
+            if (player.isOnline()) {
+                player.removePotionEffect(PotionEffectType.BLINDNESS);
+            }
+        });
         if(profile.getInventoryId() != null) {
             try {
                 final PlayerInventory serializedInventory = LoginSecurity.getDatastore().getInventoryRepository()
                         .findByIdBlocking(profile.getInventoryId());
                 if(serializedInventory != null) {
                     Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), () -> {
-                        InventorySerializer.deserializeInventory(serializedInventory, player.getInventory());
-                        profile.setInventoryId(null);
-                        session.saveProfileAsync();
-                        // TODO: Delete inventory
+                        if (player.isOnline()) {
+                            InventorySerializer.deserializeInventory(serializedInventory, player.getInventory());
+                            profile.setInventoryId(null);
+                            session.saveProfileAsync();
+                            // TODO: Delete inventory
+                        }
                     });
                 } else {
                     LoginSecurity.getInstance().getLogger().log(Level.WARNING, "Couldn't find player's inventory");
@@ -76,10 +85,12 @@ public abstract class AuthAction {
                 final PlayerLocation serializedLocation = LoginSecurity.getDatastore().getLocationRepository()
                         .findByIdBlocking(profile.getLoginLocationId());
                 Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), () -> {
-                    PaperLib.teleportAsync(player, serializedLocation.asLocation());
-                    profile.setLoginLocationId(null);
-                    session.saveProfileAsync();
-                    LoginSecurity.getDatastore().getLocationRepository().delete(serializedLocation);
+                    if (player.isOnline()) {
+                        PaperLib.teleportAsync(player, serializedLocation.asLocation());
+                        profile.setLoginLocationId(null);
+                        session.saveProfileAsync();
+                        LoginSecurity.getDatastore().getLocationRepository().delete(serializedLocation);
+                    }
                 });
             } catch (SQLException e) {
                 LoginSecurity.getInstance().getLogger().log(Level.SEVERE, "Failed to load player login location", e);
@@ -87,7 +98,11 @@ public abstract class AuthAction {
         }
 
         if(LoginSecurity.getConfiguration().isHideInventory()) {
-            Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), player::updateInventory);
+            Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), () -> {
+                if (player.isOnline()) {
+                    player.updateInventory();
+                }
+            });
         }
     }
 }
