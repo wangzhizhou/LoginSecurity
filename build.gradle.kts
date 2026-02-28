@@ -2,6 +2,10 @@ import org.yaml.snakeyaml.Yaml
 
 buildscript {
     repositories {
+        // 中国大陆备用镜像站：阿里云
+        maven("https://maven.aliyun.com/repository/central")
+        maven("https://maven.aliyun.com/repository/public")
+        // 官方Maven中心仓
         mavenCentral()
     }
     dependencies {
@@ -39,6 +43,10 @@ repositories {
     maven { url = uri("https://repo.codemc.io/repository/maven-public/") }
     maven { url = uri("https://repo.dmulloy2.net/repository/public/") }
     maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
+    // 中国大陆备用镜像站：阿里云
+    maven("https://maven.aliyun.com/repository/central")
+    maven("https://maven.aliyun.com/repository/public")
+    // 官方Maven中心仓
     mavenCentral()
 }
 
