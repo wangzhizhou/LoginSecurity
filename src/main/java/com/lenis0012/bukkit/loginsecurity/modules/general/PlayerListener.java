@@ -12,7 +12,6 @@ import com.lenis0012.bukkit.loginsecurity.storage.PlayerLocation;
 import com.lenis0012.bukkit.loginsecurity.storage.PlayerProfile;
 import com.lenis0012.bukkit.loginsecurity.util.MetaData;
 import com.lenis0012.bukkit.loginsecurity.util.UserIdMode;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
@@ -164,7 +163,7 @@ public class PlayerListener implements Listener {
                     LoginSecurity.getInstance().getLogger().log(Level.SEVERE, "Failed to save player location", result.getError());
                     return;
                 }
-                PaperLib.teleportAsync(player, Bukkit.getWorlds().get(0).getSpawnLocation());
+                player.teleportAsync(Bukkit.getWorlds().get(0).getSpawnLocation());
             });
         }
     }

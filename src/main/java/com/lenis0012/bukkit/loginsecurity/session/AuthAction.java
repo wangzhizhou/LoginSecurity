@@ -6,7 +6,6 @@ import com.lenis0012.bukkit.loginsecurity.storage.PlayerInventory;
 import com.lenis0012.bukkit.loginsecurity.storage.PlayerLocation;
 import com.lenis0012.bukkit.loginsecurity.storage.PlayerProfile;
 import com.lenis0012.bukkit.loginsecurity.util.InventorySerializer;
-import io.papermc.lib.PaperLib;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -86,7 +85,7 @@ public abstract class AuthAction {
                         .findByIdBlocking(profile.getLoginLocationId());
                 Bukkit.getScheduler().runTask(LoginSecurity.getInstance(), () -> {
                     if (player.isOnline()) {
-                        PaperLib.teleportAsync(player, serializedLocation.asLocation());
+                        player.teleportAsync(serializedLocation.asLocation());
                         profile.setLoginLocationId(null);
                         session.saveProfileAsync();
                         LoginSecurity.getDatastore().getLocationRepository().delete(serializedLocation);
