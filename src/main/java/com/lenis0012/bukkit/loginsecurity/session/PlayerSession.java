@@ -135,7 +135,11 @@ public class PlayerSession {
      * @return Player
      */
     public Player getPlayer() {
-        return Bukkit.getPlayer(profile.getLastName());
+        final String lastName = profile.getLastName();
+        if (lastName == null) {
+            return null;  // 防御：异步 AuthModeChangedEvent 时序竞争时 lastName 尚未设置
+        }
+        return Bukkit.getPlayer(lastName);
     }
 
     public String getPreLoginIp() {
